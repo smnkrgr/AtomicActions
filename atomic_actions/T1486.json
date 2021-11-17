@@ -1,0 +1,19 @@
+{
+  "mitre_mapping": "T1486",
+  "action": {
+    "file_end": "enc,gg",
+    "wait_time": {
+      "low": "0",
+      "high": "30"
+    }
+  },
+  "executor": {
+    "name": "bash",
+    "command": "encrypt_new_file #{file_end}"
+  },
+  "reward": {
+    "1": "passes test_files_encrypt.py",
+    "-1": "detected",
+    "-0.5": "else"
+   }
+}
