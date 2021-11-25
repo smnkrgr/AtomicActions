@@ -8,7 +8,6 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 import shutil
-from src.Event import Event
 import yaml
 
 class Helper(object):
@@ -19,12 +18,19 @@ class Helper(object):
 
     @staticmethod
     def print_header() -> None:
-        print(r"------------------------------------------------")
-        print(r"|    / _ \ / ___|  _ \                         |")  
-        print(r"|   | | | | |   | | | |     Atomic Testing     |")
-        print(r"|   | |_| | |___| |_| |     Framework          |")
-        print(r"|    \___/ \____|____/                         |") 
-        print(r"------------------------------------------------")
+        print(r"----------------------------------------------------------------------")
+        print(r"|     _   _                  _                                       |")
+        print(r"|    / \ | |_ ___  _ __ ___ (_) ___                                  |")
+        print(r"|   / _ \| __/ _ \| '_ ` _ \| |/ __|                                 |")
+        print(r"|  / ___ \ || (_) | | | | | | | (__                                  |")
+        print(r"| /_/   \_\__\___/|_| |_| |_|_|\___|                                 |")
+        print(r"|  _____            _                                      _         |")
+        print(r"| | ____|_ ____   _(_)_ __ ___  _ __  _ __ ___   ___ _ __ | |_ ___   |")
+        print(r"| |  _| | '_ \ \ / / | '__/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __/ __|  |")
+        print(r"| | |___| | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_\__ \  |")
+        print(r"| |_____|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|___/  |")
+        print(r"|                                                                    |")  
+        print(r"----------------------------------------------------------------------")
 
     @staticmethod
     def check_file_existing(filename) -> bool:
@@ -37,24 +43,6 @@ class Helper(object):
         return string_is_csv
 
     @staticmethod
-    def load_technique_ids_from_csv(filename) -> list:
-        test_list = []
-        with open(filename) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            first_line = True
-            for row in csv_reader:
-                if first_line:
-                    if (len(row) > 1):
-                        # Wrong format, return empty
-                        return []
-                    first_line = False 
-                else:
-                    technique = row[0]
-                    if (Helper.check_technique_convention(technique)):
-                        test_list.append(technique)
-        return test_list 
-
-    @staticmethod
     def check_technique_convention(string) -> bool:
         return bool(re.match(r"T\d{4}(\.\d{3})?", string))
 
@@ -62,28 +50,6 @@ class Helper(object):
     def check_guid_convention(string) -> bool:
         return bool(re.match(r"[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-" + \
                 "[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}", string))
-
-    @staticmethod
-    def load_guids_from_csv(filename) -> list:
-        guid_list = []
-        first_line = True
-        with open(filename) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                if first_line:
-                    if (len(row) > 2):
-                        # Wrong format, return empty
-                        return []
-                    first_line = False 
-                else:
-                    try:
-                        guid = row[0]
-                        comment = row[1]
-                    except Exception as e:
-                        return []
-                    if (Helper.check_guid_convention(guid)):
-                        guid_list.append([guid, comment])
-        return guid_list
 
     @staticmethod
     def parse_technique_ids_from_string(arg) -> list:
@@ -166,14 +132,13 @@ class Helper(object):
             return files
 
     @staticmethod
-    def create_technique_yaml_paths(path, technique_list) -> dict:
-        yaml_file_paths = {}
-        for technique in technique_list:
-            yaml_file_paths[technique] = os.path.join(path, technique, technique + ".yaml")
-        return yaml_file_paths
+    def create_technique_json_paths(path, technique) -> str:
+        # Creates a path to a technique JSON definition
+        json_file_path = os.path.join(path, technique + ".json")
+        return json_file_path
 
     @staticmethod
-    def load_yaml_test(filename) -> dict:
+    def load_yaml_technique(filename) -> dict:
         test = {}
         try:
             with open(filename) as yaml_test:
@@ -181,7 +146,8 @@ class Helper(object):
         except Exception as e:
             message = "Loading test from YAML file went wrong: " + filename + \
                     "\n" + str(e)
-            Event(message=message, is_error=True, exit=True)
+            #Event(message=message, is_error=True, exit=True)
+            print(message)
         return test
 
     @staticmethod
